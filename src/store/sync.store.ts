@@ -77,11 +77,14 @@ export const useSyncStore = defineStore('sync', () => {
 
   // ─── 3. Encolar acciones offline de forma segura ────────────────────────────
   async function agregarASyncQueue(data: any, tipo: 'completar' | 'pausar') {
+    // FIX DE ORO: Eliminamos los Proxies reactivos de Vue para que IndexedDB no colapse
+    const dataLimpia = JSON.parse(JSON.stringify(data))
+    
     const id = Date.now().toString()
     await dbSyncQueue.setItem(id, {
       tipo,
-      payload: data,
-      ordenId: data.ordenId,
+      payload: dataLimpia,
+      ordenId: dataLimpia.ordenId,
       fecha: Date.now()
     })
     await actualizarContador()
