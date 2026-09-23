@@ -299,7 +299,7 @@ async function handleSubmit(): Promise<void> {
   >
     <SheetContent
       side="right"
-      class="w-full sm:max-w-lg flex flex-col gap-0 p-0"
+      class="w-full sm:max-w-lg flex flex-col gap-0 p-0 [&>button]:hidden"
     >
       <!-- Cabecera del panel -->
       <SheetHeader class="px-6 py-5 border-b border-border shrink-0">

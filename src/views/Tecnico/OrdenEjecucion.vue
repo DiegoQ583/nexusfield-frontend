@@ -5,6 +5,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { dbOrdenes, dbCatalogo, useSyncStore } from '@/store/sync.store'
 import { useAppFeedback } from '@/composables/useAppFeedback'
 import { TecnicoService } from '@/services/tecnico.service'
+import { fetchCsrfToken } from '@/services/api'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -300,9 +301,11 @@ async function reanudarOrden() {
   isReanudando.value = true
   try {
     if (syncStore.isOnline) {
+      // Aseguramos token CSRF antes de llamar al POST
+      await fetchCsrfToken()
       await TecnicoService.reanudarOrden(orden.value.id)
     }
-    
+
     // Update local state
     const ordenesLocales = await dbOrdenes.getItem<any[]>('mis_ordenes') || []
     const idx = ordenesLocales.findIndex(o => o.id === orden.value.id)
@@ -345,30 +348,34 @@ async function completarOrden() {
 
   isCompletando.value = true
 
-  const formData = new FormData()
-  formData.append('ordenId', orden.value.id.toString())
-  formData.append('horasTrabajadas', form.value.horasTrabajadas.toString())
-  formData.append('notasTecnico', form.value.notasTecnico.trim())
-
-  form.value.fotosBase64.forEach((base64, idx) => {
-    formData.append('fotos', base64ToFile(base64, `evidencia_${orden.value.id}_${idx}.jpg`))
-  })
-  
-  if (form.value.firmaBase64) {
-    formData.append('firma', base64ToFile(form.value.firmaBase64, `firma_${orden.value.id}.png`))
-  }
-
-  form.value.repuestos.forEach((rep, index) => {
-    formData.append(`repuestos[${index}].repuestoId`, rep.id.toString())
-    formData.append(`repuestos[${index}].cantidad`, rep.cantidad.toString())
-  })
-
   try {
+    const formData = new FormData()
+    formData.append('ordenId', orden.value.id.toString())
+    formData.append('horasTrabajadas', form.value.horasTrabajadas.toString())
+    formData.append('notasTecnico', form.value.notasTecnico.trim())
+
+    form.value.fotosBase64.forEach((base64, idx) => {
+      formData.append('fotos', base64ToFile(base64, `evidencia_${orden.value.id}_${idx}.jpg`))
+    })
+    
+    if (form.value.firmaBase64) {
+      formData.append('firma', base64ToFile(form.value.firmaBase64, `firma_${orden.value.id}.png`))
+    }
+
+    // FIX ROBUSTO: Tolera tanto 'id' como 'repuestoId'
+    form.value.repuestos.forEach((rep: any, index: number) => {
+      const rId = rep.id ?? rep.repuestoId
+      formData.append(`repuestos[${index}].repuestoId`, rId.toString())
+      formData.append(`repuestos[${index}].cantidad`, rep.cantidad.toString())
+    })
+
     if (syncStore.isOnline) {
+      // 1. Refrescamos el token CSRF antes de disparar el POST multipart
+      await fetchCsrfToken()
       await TecnicoService.completarOrden(orden.value.id, formData)
       feedback.showSuccess('Orden completada exitosamente.')
     } else {
-      // Guardamos el objeto limpio con Base64 (100% seguro para IndexedDB)
+      // 2. Guardamos en la cola offline limpia
       await syncStore.agregarASyncQueue({
         ordenId: orden.value.id,
         horasTrabajadas: form.value.horasTrabajadas,
@@ -381,15 +388,18 @@ async function completarOrden() {
     }
 
     await dbOrdenes.removeItem('draft_orden_' + orden.value.id)
-    const ordenesLocales = await dbOrdenes.getItem<any[]>('mis_ordenes')
+    const ordenesLocales = (await dbOrdenes.getItem<any[]>('mis_ordenes')) || []
     if (ordenesLocales) {
       const filtradas = ordenesLocales.filter(o => o.id !== orden.value!.id)
       await dbOrdenes.setItem('mis_ordenes', filtradas)
     }
 
     router.replace('/tecnico/dashboard')
-  } catch (error) {
-    feedback.showErrorModal('Error al completar la orden: Verifique los datos o inténtelo más tarde.')
+  } catch (error: any) {
+    console.error('Error al completar:', error)
+    // Mostramos el mensaje EXACTO del backend si existe
+    const detalleError = error.response?.data?.detail || error.response?.data?.title || error.message || 'Verifique los datos o inténtelo más tarde.'
+    feedback.showErrorModal(`Error al completar la orden: ${detalleError}`)
   } finally {
     isCompletando.value = false
   }
