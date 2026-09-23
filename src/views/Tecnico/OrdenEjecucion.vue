@@ -366,16 +366,18 @@ async function completarOrden() {
   try {
     if (syncStore.isOnline) {
       await TecnicoService.completarOrden(orden.value.id, formData)
-      // @ts-ignore
-      if(feedback.showSuccess) feedback.showSuccess('Orden completada exitosamente.')
-      // @ts-ignore
-      else if(feedback.showSuccessToast) feedback.showSuccessToast('Orden completada exitosamente.')
+      feedback.showSuccess('Orden completada exitosamente.')
     } else {
-      await syncStore.agregarASyncQueue(formData, 'completar')
-      // @ts-ignore
-      if(feedback.showSuccess) feedback.showSuccess('Guardado offline. Sincronización pendiente.')
-      // @ts-ignore
-      else if(feedback.showSuccessToast) feedback.showSuccessToast('Guardado offline. Sincronización pendiente.')
+      // Guardamos el objeto limpio con Base64 (100% seguro para IndexedDB)
+      await syncStore.agregarASyncQueue({
+        ordenId: orden.value.id,
+        horasTrabajadas: form.value.horasTrabajadas,
+        notasTecnico: form.value.notasTecnico.trim(),
+        fotosBase64: [...form.value.fotosBase64],
+        firmaBase64: form.value.firmaBase64,
+        repuestos: [...form.value.repuestos]
+      }, 'completar')
+      feedback.showSuccess('Guardado offline. Sincronización pendiente.')
     }
 
     await dbOrdenes.removeItem('draft_orden_' + orden.value.id)

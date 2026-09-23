@@ -102,10 +102,7 @@ async function handleLogout(): Promise<void> {
   router.push('/login')
 }
 
-/**
- * Formatea la fecha de una notificación de forma legible y compacta.
- * Muestra la hora si es hoy, la fecha si es anterior.
- */
+//Formatea la fecha de una notificación de forma legible y compacta. Muestra la hora si es hoy, la fecha si es anterior
 function formatNotifFecha(fecha: Date): string {
   const ahora = new Date()
   const mismaFecha =

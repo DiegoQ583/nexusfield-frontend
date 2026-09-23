@@ -19,10 +19,10 @@ export default defineConfig({
         name: 'NexusField FSM',
         short_name: 'NexusField',
         description: 'Plataforma de Field Service Management',
-        theme_color: '#09090b', // Color de la barra de estado del celular (Dark)
-        background_color: '#09090b', // Color de fondo al abrir la app
-        display: 'standalone', // Oculta la barra del navegador de Chrome/Safari
-        orientation: 'portrait', // Bloquea la app en vertical (opcional pero recomendado para móviles)
+        theme_color: '#09090b',
+        background_color: '#09090b',
+        display: 'standalone',
+        orientation: 'portrait',
         icons: [
           {
             src: '/icon-192x192.png',
@@ -38,7 +38,7 @@ export default defineConfig({
             src: '/icon-512x512.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable' // Requerido por Android para adaptar el icono a círculos/cuadrados
+            purpose: 'any maskable'
           }
         ]
       }
