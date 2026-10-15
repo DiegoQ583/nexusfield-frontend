@@ -1,15 +1,4 @@
 <script setup lang="ts">
-/**
- * OrdenDetailSheet.vue — Panel lateral de solo lectura para el detalle completo
- * de una Orden de Trabajo.
- *
- * Características clave:
- * - DOMPurify sanitiza las notas del técnico antes de v-html (prevención XSS).
- * - Sección de resolución solo visible cuando estado === 'Completada'.
- * - CSS de impresión integrado: window.print() genera un documento A4 limpio.
- * - Desglose financiero con subtotales de repuestos y costo total formateado.
- */
-
 import { ref, computed, watch } from 'vue'
 import DOMPurify from 'dompurify'
 import { OrdenesService } from '@/services/ordenes.service'

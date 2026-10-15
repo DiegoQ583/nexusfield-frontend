@@ -1,12 +1,4 @@
 <script setup lang="ts">
-/**
- * OrdenCreateSheet.vue — Panel lateral para crear una nueva Orden de Trabajo.
- *
- * Flujo de datos al abrir:
- * 1. Precarga técnicos (GET /usuarios?rol=Tecnico) y repuestos (GET /repuestos).
- * 2. El Combobox de Activos dispara búsquedas debounced cuando el usuario escribe.
- * 3. Al submit: valida en cliente → llama OrdenesService.crear() → emite 'created'.
- */
 
 import { ref, reactive, watch, computed } from 'vue'
 import { useNetwork, refDebounced } from '@vueuse/core'

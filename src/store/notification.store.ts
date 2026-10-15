@@ -1,13 +1,3 @@
-/**
- * notification.store.ts — Store de notificaciones en tiempo real (SignalR).
- *
- * Responsabilidades:
- * - Mantener el historial de notificaciones y el conteo de no leídas.
- * - Gestionar la conexión con el Hub de SignalR.
- * - Exponer un trigger reactivo para que el dashboard se refresque
- *   automáticamente cuando el backend emite el evento "ActualizarDashboard".
- */
-
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { HubConnectionBuilder, HubConnectionState, type HubConnection } from '@microsoft/signalr'

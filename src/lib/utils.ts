@@ -6,10 +6,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-/**
- * Limpia un número de teléfono dejando solo los dígitos.
- * Si el usuario ya incluyó el +58, lo respeta. Si no, se lo agrega.
- */
+
 export function formatTelefonoVE(telefono: string | null | undefined): string | null {
   if (!telefono || telefono.trim() === '') return null;
   

@@ -1,14 +1,5 @@
 <script setup lang="ts">
-/**
- * DespachadorLayout.vue — Layout base del módulo Despachador.
- *
- * Responsabilidades:
- * - Renderizar el sidebar de escritorio y la topbar con el estado de usuario.
- * - Inicializar la conexión SignalR en el montaje del componente.
- * - Proveer el menú móvil mediante Sheet de shadcn-vue.
- * - Mostrar el centro de notificaciones en tiempo real.
- * - Indicar el estado de la red (online/offline) en el topbar.
- */
+
 
 import { ref, onMounted } from 'vue'
 import { RouterLink, RouterView, useRouter } from 'vue-router'

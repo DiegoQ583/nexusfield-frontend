@@ -1,12 +1,3 @@
-/**
- * api.ts — Instancia global de Axios para NexusField.
- *
- * Responsabilidades:
- * - Configurar baseURL, withCredentials y headers CSRF de forma global.
- * - Interceptar respuestas HTTP y manejar 401/429/500 de forma centralizada.
- * - Dejar pasar los errores 400 para que el componente los gestione localmente.
- */
-
 import axios, { type AxiosError } from 'axios'
 import { toast } from 'vue-sonner'
 import { useAuthStore } from '@/store/auth.store'

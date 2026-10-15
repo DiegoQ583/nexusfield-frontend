@@ -1,12 +1,4 @@
 <script setup lang="ts">
-/**
- * DespachadorDashboardView.vue — Centro de comando del Despachador.
- *
- * Responsabilidades:
- * - Cargar métricas KPI y órdenes recientes en paralelo (Promise.all).
- * - Refrescarse automáticamente ante eventos SignalR del backend.
- * - Renderizar KPIs, gráfico de barras (unovis) y tabla de órdenes.
- */
 
 import { ref, watch, onMounted, computed } from 'vue'
 import {

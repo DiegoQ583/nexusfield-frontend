@@ -1,12 +1,3 @@
-/**
- * auth.store.ts — Store de autenticación para NexusField.
- *
- * Responsabilidades:
- * - Mantener el perfil público del usuario (NUNCA el JWT).
- * - Proveer acciones login/logout con flujo CSRF → credenciales.
- * - Restaurar sesión desde localStorage para persistir entre recargas.
- */
-
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import api, { fetchCsrfToken } from '@/services/api'
@@ -74,11 +65,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  /**
-   * restoreSession — Recupera el perfil desde localStorage.
-   * Usado por el router guard para mantener sesión entre recargas.
-   * Retorna true si se pudo restaurar, false en caso contrario.
-   */
+
   function restoreSession(): boolean {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return false
@@ -93,9 +80,6 @@ export const useAuthStore = defineStore('auth', () => {
         'rol' in parsed
       ) {
         user.value = parsed as User
-
-        // NUEVO: Si restauramos la sesión con éxito al recargar la página, 
-        // pedimos un token CSRF nuevo en segundo plano para poder hacer POSTs.
         fetchCsrfToken()
 
         return true

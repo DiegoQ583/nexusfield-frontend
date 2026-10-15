@@ -1,13 +1,4 @@
 <script setup lang="ts">
-/**
- * LoginView.vue — Vista de autenticación premium para NexusField.
- *
- * Responsabilidades:
- * - Renderizar formulario con validación de errores locales (HTTP 400).
- * - Detectar estado de red offline con @vueuse/core y deshabilitar el submit.
- * - Detectar fallos de red (sin response) antes de asumir errores del servidor.
- * - Delegar la lógica de negocio al authStore (patrón Smart/Dumb).
- */
 
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'

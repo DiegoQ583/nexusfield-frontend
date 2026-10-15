@@ -1,13 +1,4 @@
 <script setup lang="ts">
-/**
- * OrdenesList.vue — Vista principal del módulo de Gestión de Órdenes.
- *
- * Responsabilidades:
- * - Mostrar órdenes paginadas del servidor con filtros de tab, búsqueda y prioridad.
- * - Debounce en la búsqueda para no saturar el backend con cada tecla.
- * - Paginación server-side con navegación Anterior/Siguiente.
- * - Skeletons de carga y estado vacío.
- */
 
 import { ref, reactive, watch, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'

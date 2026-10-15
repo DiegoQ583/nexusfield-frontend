@@ -1,9 +1,3 @@
-/**
- * usuarios.service.ts — Capa de servicio para el módulo de Usuarios.
- *
- * Encapsula todas las llamadas HTTP al endpoint /usuarios para que los
- * componentes (Smart Views) no manejen Axios directamente.
- */
 
 import api from '@/services/api'
 

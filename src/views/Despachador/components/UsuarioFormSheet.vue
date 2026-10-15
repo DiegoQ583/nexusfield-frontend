@@ -1,16 +1,4 @@
 <script setup lang="ts">
-/**
- * UsuarioFormSheet.vue — Panel lateral de creación/edición/vista de usuarios.
- *
- * Modos:
- * - 'create' : Muestra todos los campos. El submit llama a UsuariosService.crear().
- * - 'edit'   : Oculta clave. NombreUsuario y Rol son readonly. Submit llama a actualizar().
- * - 'view'   : Todos los campos disabled. No hay botón de guardar.
- *
- * El Bug de Auto-Cierre fue causado por el await de obtenerPorId dentro del watch
- * (el componente se cerraba antes de que la petición terminara). Ahora los datos
- * vienen pre-cargados vía la prop `usuario`, eliminando la petición HTTP en el watch.
- */
 
 import { ref, computed, watch } from 'vue'
 import type { AxiosError } from 'axios'

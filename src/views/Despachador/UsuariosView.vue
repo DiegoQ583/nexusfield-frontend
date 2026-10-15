@@ -1,12 +1,4 @@
 <script setup lang="ts">
-/**
- * UsuariosView.vue — Directorio de Personal del módulo Despachador.
- *
- * Responsabilidades:
- * - Cargar y filtrar la lista de usuarios por rol (Tabs) y búsqueda con debounce.
- * - Abrir el Sheet en modo 'create', 'edit' o 'view' con el objeto de usuario.
- * - Gestionar el cambio de estado (activar/desactivar) con manejo de error 400.
- */
 
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'

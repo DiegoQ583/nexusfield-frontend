@@ -1,9 +1,3 @@
-/**
- * ordenes.service.ts — Capa de servicio para el módulo de Órdenes de Trabajo.
- *
- * Encapsula todas las llamadas HTTP al endpoint /ordenes para que las vistas
- * no gestionen Axios directamente (patrón Smart vs Dumb Components).
- */
 
 import api from '@/services/api'
 

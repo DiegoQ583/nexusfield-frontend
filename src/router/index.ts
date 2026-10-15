@@ -1,13 +1,3 @@
-/**
- * router/index.ts — Configuración de Vue Router con guards de autenticación.
- *
- * Flujo del guard beforeEach (Vue Router 4 return-value API, sin next()):
- * 1. Si la ruta NO requiere auth → dejar pasar (return true).
- * 2. Si la ruta requiere auth → verificar Pinia; si no hay user, intentar
- *    restaurar desde localStorage; si falla, redirigir a /login.
- * 3. Si el usuario está autenticado y navega a /login → redirigir según rol.
- */
-
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/store/auth.store'
 
