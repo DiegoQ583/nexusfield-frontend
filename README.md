@@ -314,39 +314,38 @@ Para superar las restricciones de conectividad y permitir pruebas en dispositivo
 
 ---
 
-## Guía de Despliegue y Pruebas de Campo (Peer Review)
+# Guía de Despliegue y Pruebas de Campo (Peer Review)
 
 Para evaluar correctamente esta aplicación y probar sus capacidades de hardware (Cámara) y PWA (Instalación y Offline-First) en un dispositivo móvil real, el frontend debe servirse bajo un entorno **HTTPS seguro**. 
 
 A continuación, se detalla el tutorial paso a paso para desplegar el Frontend en **Vercel** y conectarlo a tu Backend local mediante un túnel seguro.
 
-### Paso 1: Preparar el Repositorio (Fork)
+## Paso 1: Preparar el Repositorio (Fork)
 Para que Vercel pueda compilar el proyecto, necesitas tenerlo en tu propia cuenta de GitHub.
 1. Ve a la parte superior derecha de este repositorio y haz clic en el botón **"Fork"**.
 2. Crea el fork en tu cuenta personal de GitHub.
 
-### Paso 2: Exponer el Backend a Internet (Dev Tunnels)
-El frontend en la nube necesitará comunicarse con la API de .NET 10 que corre en tu máquina. Usaremos los túneles nativos de Visual Studio.
-1. Abre el proyecto del **Backend** en Visual Studio 2022.
-2. Al lado del botón verde de "Iniciar" (Play), haz clic en la flecha desplegable.
-3. Ve a **Túneles de desarrollo (Dev Tunnels)** -> **Crear un túnel...**
-4. Configúralo así:
-   - **Nombre:** `nexusfield-api`
-   - **Tipo:** Persistente
-   - **Acceso:** **Público** (Crítico para que Vercel pueda acceder).
-5. Inicia el backend (Play). Se abrirá una consola o navegador mostrando una URL pública de Microsoft (ej. `https://abcd-1234.inc1.devtunnels.ms`). **Copia esta URL base.**
-6. *⚠️ Paso de Seguridad:* Abre esa URL copiada en el navegador de tu celular y de tu PC. Si Microsoft muestra una pantalla de advertencia ("You are connecting to a developer tunnel"), haz clic en **"Continue"**. Esto autoriza el tráfico.
-
-### Paso 3: Despliegue del Frontend en Vercel
+## Paso 2: Despliegue del Frontend en Vercel
 1. Crea una cuenta gratuita o inicia sesión en [Vercel.com](https://vercel.com/) usando tu cuenta de GitHub.
 2. Haz clic en **"Add New..."** -> **"Project"**.
 3. Importa el repositorio (Fork) de `nexusfield-frontend` que creaste en el Paso 1.
 4. En la pantalla de configuración del despliegue, ve a la sección **Environment Variables** y agrega:
    - **Key:** `VITE_API_URL`
-   - **Value:** Pega la URL de tu túnel y agrégale `/api/v1` al final (Ej: `https://abcd-1234.inc1.devtunnels.ms/api/v1`).
+   - **Value:** Pega la URL de tu túnel (la que guardaste al configurar el backend) y agrégale `/api/v1` al final (Ej: `https://abcd-1234.inc1.devtunnels.ms/api/v1`).
 5. Haz clic en **Deploy**. En menos de un minuto, Vercel te entregará una URL pública (ej. `https://nexusfield-frontend.vercel.app`). **Copia esta URL.**
 
-### Paso 4: Autorizar Vercel en el Backend (CORS)
+> **TIP: ¿Te equivocaste en la URL o reiniciaste el túnel?**
+> Si necesitas actualizar la URL de la API en el futuro, debes recrear la variable y recompilar el proyecto:
+> 1. En tu proyecto de Vercel, ve a la pestaña **Settings** -> **Environment Variables**.
+> 2. Busca la variable `VITE_API_URL`, haz clic en los tres puntos (`...`) a su derecha y selecciona **Delete**.
+> 3. Crea una nueva haciendo clic en **Add New Variable**:
+>    - **Key:** `VITE_API_URL`
+>    - **Value:** Pega tu nueva URL (ej. `https://nuevo-codigo.inc1.devtunnels.ms/api/v1`)
+>    - **Type:** Selecciona **`Config`** (Obligatorio. Como Vite expone esta variable al navegador, Vercel requiere que sea de tipo Configuración y no un Secreto).
+> 4. Haz clic en **Save**.
+> 5. **Paso Crítico:** Ve a la pestaña **Deployments**, haz clic en los tres puntos del último despliegue y selecciona **Redeploy**. Espera 40 segundos y tu app estará conectada a la nueva URL.
+
+## Paso 3: Autorizar Vercel en el Backend (CORS)
 Para que el backend acepte las peticiones del frontend desplegado:
 1. Vuelve a Visual Studio (Backend) y abre el archivo `Program.cs`.
 2. En la configuración de CORS (`AddCors`), agrega la URL exacta que te dio Vercel:
@@ -361,32 +360,54 @@ Para que el backend acepte las peticiones del frontend desplegado:
    ```
 3. Guarda y **reinicia el backend** en Visual Studio.
 
+## Paso 4: Pruebas de Campo (Flujo End-to-End)
+Para evaluar correctamente la arquitectura de esta plataforma, te invitamos a simular un ciclo de trabajo real. Necesitarás tu computadora (para el Despachador) y tu teléfono móvil (para el Técnico).
+
+**Nota Importante:** Asegúrate de que el Backend (Visual Studio) esté funcionando y que el Túnel de Desarrollo (Dev Tunnel) esté activo antes de comenzar.
+
+### FASE 1: La Oficina (Perfil Despachador en PC)
+Abre la URL de Vercel en el navegador de tu computadora.
+1. **Inicio de Sesión:** Ingresa con el rol de Despachador (Usuario: `DiegoAdmin` | Clave: `Nexus2026!`).
+2. **Exploración de Módulos:** 
+   - Navega al **Inventario** y observa las alertas rojas automáticas para repuestos con stock crítico (≤ 5).
+   - Navega a **Activos** y prueba el buscador. Notarás un ligero retraso intencional (*Debounce* de 300ms) diseñado para no saturar la base de datos al teclear.
+3. **Creación de la Orden:** 
+   - Ve a **Órdenes** y haz clic en "+ Nueva Orden".
+   - En "Activo / Máquina", escribe "Ascensor" o "Planta". Verás el autocompletado en tiempo real consumiendo un endpoint ligero.
+   - Asigna la orden al usuario `Gilmanito` (Técnico).
+   - En "Repuestos Pre-Asignados", selecciona un par de repuestos y define la cantidad. El sistema validará que no superes el stock disponible.
+   - Haz clic en "Asignar Trabajo".
+
+### FASE 2: El Terreno (Perfil Técnico en Teléfono Móvil)
+Toma tu smartphone (con Wi-Fi o datos), abre Chrome (Android) o Safari (iOS) y entra a la URL de Vercel.
+1. **Instalación PWA:** El navegador te sugerirá **"Instalar aplicación"** o "Agregar a la pantalla de inicio". Acéptalo, cierra el navegador y abre la app "NexusField" desde el nuevo icono en tu pantalla. Se ejecutará en pantalla completa como una app nativa.
+2. **Inicio de Jornada:** Inicia sesión como Técnico (Usuario: `Gilmanito` | Clave: `Tecnico2026!`).
+3. **Dashboard Inteligente:** 
+   - Verás el widget del clima consumiendo tu geolocalización en tiempo real.
+   - Verás una alerta azul indicándote exactamente qué repuestos debes retirar del almacén para la orden que el despachador acaba de crear.
+4. **Pre-visualización:** Toca la orden asignada. Verás los botones nativos para abrir Google Maps con la ubicación exacta o llamar a la central. Toca **"Comenzar Trabajo"**.
+
+### FASE 3: Resiliencia Offline (El Sótano)
+Simularemos que el técnico entró a un cuarto de máquinas sin señal.
+1. **Desconexión:** Pon tu teléfono en **Modo Avión** (apaga Wi-Fi y Datos).
+2. **Prueba de Caché:** Recarga la aplicación. Verás que carga instantáneamente leyendo de `IndexedDB` y el indicador superior cambia a "Modo Local" (Amarillo).
+3. **Ejecución del Trabajo:** 
+   - En el Paso 2, agrega un repuesto extra desde el catálogo offline.
+   - En el Paso 3, registra tus horas y notas.
+   - En el Paso 4, usa la **Cámara** (el sistema comprimirá la foto vía Canvas para ahorrar RAM) y firma en el lienzo táctil.
+4. **Guardado Local:** Presiona **"Guardar Localmente"**. La orden se encolará de forma segura. Ve a la pestaña inferior **"Cola Sync"** para ver tu trabajo en espera.
+
+### FASE 4: Sincronización y Auditoría
+1. **Background Sync:** Quita el Modo Avión. En el instante en que el teléfono recupere la señal, el motor de sincronización se disparará automáticamente, enviando el `FormData` (fotos y firma) al servidor y vaciando la cola.
+2. **Auditoría Financiera (De vuelta en la PC):** 
+   - En tu computadora (como Despachador), ve a la pestaña "Historial" en el módulo de Órdenes.
+   - Abre la orden que el técnico acaba de completar.
+   - Verás la galería de fotos, la firma del cliente y un **Desglose Financiero** exacto (Horas × Tarifa + Repuestos). 
+   - Haz clic en **"Imprimir"** para ver cómo el CSS `@media print` transforma la pantalla en una factura limpia y profesional lista para entregar al cliente.
+
 ---
 
-### Paso 5: Pruebas de Campo (El "Wow Factor")
-
-Con el backend corriendo en tu PC y el frontend en Vercel, toma tu teléfono móvil (con Wi-Fi o datos) y sigue este flujo para evaluar la arquitectura:
-
-1. **Instalación PWA:**
-   - Abre Chrome (Android) o Safari (iOS) en tu celular y entra a la URL de Vercel.
-   - El navegador te sugerirá **"Instalar aplicación"** o "Agregar a la pantalla de inicio". Acéptalo.
-   - Cierra el navegador y abre la app "NexusField" desde el icono en tu pantalla. Se ejecutará en pantalla completa nativa.
-
-2. **Prueba de Hardware y Sincronización:**
-   - Inicia sesión con el rol de **Técnico** (Usuario: `tecnico1` / Clave: `Tecnico2026!`).
-   - Abre una orden pendiente y haz clic en "Comenzar Trabajo".
-   - En el Paso 4 (Evidencia), prueba la **Cámara** (se abrirá el lente trasero nativo) y el **Lienzo de Firma** táctil.
-
-3. **Prueba de Resiliencia Offline (El Sótano):**
-   - Pon tu teléfono en **Modo Avión** (apaga Wi-Fi y Datos).
-   - Recarga la aplicación. Verás que carga instantáneamente y el indicador superior cambia a "Modo Local" (Amarillo).
-   - Completa la orden, toma una foto, firma y presiona **"Guardar Localmente"**.
-   - Ve a la pestaña inferior **"Cola Sync"**. Verás tu orden encolada de forma segura en IndexedDB.
-   - **Quita el Modo Avión**. En el instante en que el teléfono recupere la señal, el *Background Sync* se disparará automáticamente, enviando el `FormData` al servidor y vaciando la cola.
-
----
-
-### Solución de Problemas Comunes (Troubleshooting)
+## Solución de Problemas Comunes (Troubleshooting)
 
 - **Error `Network Error` al iniciar sesión:**
   *Causa:* El frontend en Vercel no alcanza tu PC.
